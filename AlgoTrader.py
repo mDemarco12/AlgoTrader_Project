@@ -33,8 +33,8 @@ class SMABacktester():
         data["Strategy"] = data["Returns"] * data.Position.shift(1)
         data.dropna(inplace=True)
         data["Returns, Buy/Hold"] = data["Returns"].cumsum().apply(np.exp)
-        data["Returns Strategy"] = data["Strategy"].cumsum().apply(np.exp)
-        perf = data["Returns Strategy"].iloc[-1]
+        data["Returns, Strategy"] = data["Strategy"].cumsum().apply(np.exp)
+        perf = data["Returns, Strategy"].iloc[-1]
         outperf = perf - data["Returns, Buy/Hold"].iloc[-1]
         self.results = data
 
@@ -50,7 +50,7 @@ class SMABacktester():
             print("Run the test please:)")
         else:
             title = " {} SMA_S {} Day | SMA_L {} Day ".format(self.symbol, self.SMA_S, self.SMA_L)
-            self.results[["Returns, Buy/Hold", "Returns Strategy"]].plot(title=title, figsize=(12, 8))
+            self.results[["Returns, Buy/Hold", "Returns, Strategy"]].plot(title=title, figsize=(12, 8))
 
 
 class compareStocks():
@@ -89,7 +89,7 @@ class compareStocks():
         for i in summary.index:
             plt.annotate(i, xy=(summary.loc[i, "std"] + 0.002, summary.loc[i, "mean"] + 0.002), size=15)
         plt.xlabel("Annual Risk(Standard Deviation)", fontsize=15)
-        plt.ylabel("Annual Return", fontsize=15)
+        plt.ylabel("Return", fontsize=15)
         plt.title("Risk/Return", fontsize=25)
         plt.show
 
@@ -119,18 +119,18 @@ class compare_set():
         self.results = None
 
     def compare_set(self):
-        ticker = ["SPY", "IONQ", "AMZN", "TSM", "PYPL", "GOEV", "WMT", "PG"]
+        ticker = ["SPY", "COST", "NVDA", "IONQ", "AMZN", "TSM", "WMT"]
         stocks = yf.download(ticker, start=self.start, end=self.end)
         close = stocks.loc[:, "Close"].copy()
         normClose = close.div(close.iloc[0]).mul(100)
         normClose.plot(figsize=(15, 8), fontsize=12)
         plt.title("Compare Securities", fontsize=15)
         plt.xlabel("Time", fontsize=15)
-        plt.ylabel("Price of Underlying", fontsize=15)
+        plt.ylabel("Return", fontsize=15)
         plt.legend(fontsize=12)
 
     def risk_return(self):
-        ticker = ["SPY", "IONQ", "AMZN", "TSM", "PYPL", "GOEV", "WMT", "PG"]
+        ticker = ["SPY", "COST", "NVDA", "IONQ", "AMZN", "TSM", "WMT"]
         stocks = yf.download(ticker, start=self.start, end=self.end)
 
         close = stocks.loc[:, "Close"].copy()
@@ -152,7 +152,7 @@ class compare_set():
         return plt.show()
 
     def corr_cov(self):
-        ticker = ["SPY", "IONQ", "AMZN", "TSM", "PYPL", "GOEV", "WMT", "PG"]
+        ticker = ["SPY", "COST", "NVDA", "IONQ", "AMZN", "TSM", "WMT"]
         stocks = yf.download(ticker, start=self.start, end=self.end)
         close = stocks.loc[:, "Close"].copy()
         ret = close.pct_change().dropna()
@@ -188,10 +188,9 @@ class calcDrawDown():
         tick.d_returns.sum()
         np.exp(tick.d_returns.sum())
 
-        tick["CummReturns"] = tick.d_returns.cumsum().apply(np.exp)
-        tick["CummMax"] = tick.CummReturns.cummax()
+        tick["CumulativeReturns"] = tick.d_returns.cumsum().apply(np.exp)
+        tick["CumulativeMax"] = tick.CumulativeReturns.cummax()
 
-        tick[["CummReturns", "CummMax"]].plot(figsize=(12, 8),title=" {} Buy & Hold + Cummulative Returns".format(self.symbol),fontsize=12)
-
+        tick[["CumulativeReturns", "CumulativeMax"]].plot(figsize=(12, 8),title=" {} Buy & Hold + Cumulative Returns ".format(self.symbol), fontsize=12)
 
 
